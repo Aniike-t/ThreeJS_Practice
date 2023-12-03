@@ -30,19 +30,7 @@ scene.add(ambientLight)
 
 camera.position.setZ(30);
 
-let CarPosX= 0
-let CarPosY= 0
-let CarPosZ= 0
-
-
-//Camera Working
 function CheckCamLocation(){
-  // if(camera.position.x>CamZMax){
-  //   camera.position.x=20
-  // }
-  // if(camera.position.x<CamZMax*(-1)){
-  //   camera.position.x=-20
-  // }
   const followDistance = -10; // Adjust the distance from the carContainer
   pointLight.position.set(
 
@@ -50,7 +38,7 @@ function CheckCamLocation(){
   camera.position.x = carContainer.position.x - Math.sin(carContainer.rotation.y) * followDistance;
   camera.position.y = carContainer.position.y + 5;
   camera.position.z = carContainer.position.z - Math.cos(carContainer.rotation.y) * followDistance;
-  pointLight.position.set(camera.position.x+5,camera.position.y+5,camera.position.z+5)
+  pointLight.position.set(camera.position.x+5,camera.position.y,camera.position.z+5)
 
   camera.lookAt(carContainer.position);
 }
@@ -79,22 +67,48 @@ function handleKeyDown(key) {
 function handleKeyUp(key) {
   keys[key.toUpperCase()] = false;
 }
+let speed = 0;
+let speedTo0 = true;
+const deceleration = 0.001;
 
 function updateCarPosition() {
   // Move the car based on key input
-  const speed = 0.1;
   const turnSpeed = 0.02;
+  if(!keys.S && speed<0){
+    speed=0
+  }
+  if (!keys.W && !speedTo0 && speed > 0) {
+    console.log("deaccspeed"+speed)
+    speed = Math.max(0, speed - deceleration);
+    const frontVector = new THREE.Vector3(0, 0, -1);
+    frontVector.applyAxisAngle(new THREE.Vector3(0, 1, 0), carContainer.rotation.y);
+    carContainer.position.addScaledVector(frontVector, speed);
+
+    if (speed === 0) {
+      speedTo0 = true;
+    }
+  }
+
+
   if (keys.W) {
-    CarPosX -= Math.sin(carContainer.rotation.y) * speed;
-    CarPosZ -= Math.cos(carContainer.rotation.y) * speed;
+    if(speed<0){
+      speed=0
+    }
+    speedTo0 = false;
+    speed = accelerate(speed)
+    const frontVector = new THREE.Vector3(0,0,-1)
+    frontVector.applyAxisAngle(new THREE.Vector3(0,1,0),carContainer.rotation.y)
+    carContainer.position.addScaledVector(frontVector,speed)
   }
   if (keys.A) {
     carContainer.rotation.y += turnSpeed;
   }
-  if (keys.S) {
-    CarPosX += Math.sin(carContainer.rotation.y) * speed;
-    CarPosZ += Math.cos(carContainer.rotation.y) * speed;
-    console.log(CarPosX+" "+CarPosZ)
+  if (keys.S && speed<0.2) {
+    speed = backAccelerate(speed)
+    console.log("backspeed : "+speed)
+    const backVector = new THREE.Vector3(0,0,1)
+    backVector.applyAxisAngle(new THREE.Vector3(0,1,0),carContainer.rotation.y)
+    carContainer.position.addScaledVector(backVector,speed)
   }
   if (keys.D) {
     carContainer.rotation.y -= turnSpeed;
@@ -106,7 +120,37 @@ function animate(){
   controls.update()
   CheckCamLocation()
   updateCarPosition()
-  carContainer.position.set(CarPosX,CarPosY,CarPosZ)
+  //carContainer.position.set(CarPosX,CarPosY,CarPosZ)
   renderer.render(scene,camera)
 }
 animate()
+
+
+
+function accelerate(s) {
+  const maxSpeed = 0.5;
+  const acceleration =0.03
+  s = accCalculation(maxSpeed,acceleration,s)
+  return s;
+}
+function backAccelerate(s) {
+  const maxSpeed = 0.2;
+  const acceleration = 0.02;
+  s = accCalculation(maxSpeed,acceleration,s)
+  return s
+}
+let lastTimestamp = null;
+function accCalculation(maxSpeed,acceleration,s){
+  if (s < maxSpeed) {
+    const currentTimestamp = performance.now();
+    const deltaTime = lastTimestamp ? (currentTimestamp - lastTimestamp) / 1000 : 0;
+    s += acceleration * deltaTime;
+    s = Math.min(s, maxSpeed);
+    lastTimestamp = currentTimestamp;
+  } else {
+    s = maxSpeed;
+  }
+  console.log(s);
+  return s;
+}
+

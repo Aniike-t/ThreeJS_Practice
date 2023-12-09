@@ -14,11 +14,11 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth,window.innerHeight);
 camera.position.setZ(30);
 
-const pointLight = new THREE.PointLight(0xffffff,1000)
-const ambientLight = new THREE.AmbientLight(0xffffff,1);
-pointLight.position.set(10,10,10);
+//const pointLight = new THREE.PointLight(0xffffff,1000)
+// const ambientLight = new THREE.AmbientLight(0xffffff,1);
+//pointLight.position.set(10,10,10);
 //scene.add(pointLight, ambientLight);
-const lightHelper = new THREE.PointLightHelper(pointLight)
+//const lightHelper = new THREE.PointLightHelper(pointLight)
 const gridHelper = new THREE.GridHelper(200,50)
 scene.add(gridHelper)
 //scene.add(lightHelper)
@@ -30,9 +30,9 @@ const sun = new THREE.Mesh(
   new THREE.SphereGeometry(7,32,32),
   new THREE.MeshStandardMaterial({
     map: new THREE.TextureLoader().load('assets/sun_img.jpg', function (texture) {
-      texture.minFilter = THREE.NearestFilter; // Set the texture filtering to NearestFilter
-      texture.magFilter = THREE.NearestFilter; // Set the texture filtering to NearestFilter
-      texture.anisotropy = renderer.capabilities.getMaxAnisotropy(); // Enable anisotropic filtering for better quality
+      texture.minFilter = THREE.NearestFilter; 
+      texture.magFilter = THREE.NearestFilter; 
+      texture.anisotropy = renderer.capabilities.getMaxAnisotropy(); 
     }),
     normalMap: new THREE.TextureLoader().load('assets/sun_normal.png', function (texture) {
       texture.minFilter = THREE.NearestFilter;
@@ -52,17 +52,8 @@ scene.add(sun)
 const planet = new THREE.Mesh(
   new THREE.SphereGeometry(2,32,32),
   new THREE.MeshStandardMaterial({
-    map: new THREE.TextureLoader().load('assets/planet_img.jpg', function (texture) {
-      texture.minFilter = THREE.NearestFilter; 
-      texture.magFilter = THREE.NearestFilter; 
-      texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    }),
-    normalMap: new THREE.TextureLoader().load('assets/planet_normal.png', function (texture) {
-      texture.minFilter = THREE.NearestFilter; 
-      texture.magFilter = THREE.NearestFilter; 
-      texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    }),
-    side: THREE.DoubleSide, 
+    map: new THREE.TextureLoader().load('assets/planet_img.jpg'),
+    normalMap: new THREE.TextureLoader().load('assets/sun_normal.png') //uisng same normal for planet
   })
 )
 planet.rotation.x = Math.PI / 8
@@ -83,9 +74,7 @@ function revovle(){
   planet.position.z = radius * Math.sin(theta)
   planet.position.y = radius * Math.sin(phi)
   planet.rotation.x += 0.01 
-  planetPointLight.position.x = (radius+6) * Math.cos(theta)
-  planetPointLight.position.z = (radius+6) * Math.sin(theta)
-  planetPointLight.position.y = (radius+6) * Math.sin(phi)
+  planetPointLight.position.set((radius-8)*Math.cos(theta),(radius-8)*Math.sin(theta),(radius-8)*Math.sin(phi))
 }
 
 
@@ -96,6 +85,7 @@ const planetMoon = new THREE.Mesh(
     normalMap: new THREE.TextureLoader().load('assets/planet_normal.png'),
   })
 )
+
 planetMoon.rotation.x = Math.PI / 8
 scene.add(planetMoon)
 let Mtheta= 0
@@ -108,14 +98,13 @@ function MoonRevolve(){
   planetMoon.position.z = planet.position.y+(Mradius * Math.sin(Mtheta))
   planetMoon.position.y = planet.position.z+(Mradius * Math.sin(Mphi))
   planetMoon.rotation.x += 0.01 
-
 }
 
 
 function Animate(){
   requestAnimationFrame(Animate);
   controls.update()
-  sun.rotation.y+=0.01
+  sun.rotation.y+=0.005
   revovle()
   MoonRevolve()
   renderer.render(scene, camera);

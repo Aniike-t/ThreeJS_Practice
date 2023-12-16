@@ -1,6 +1,11 @@
 import './style.css'
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import planetImg from './assets/planet_img.jpg';
+import sunImg from './assets/sun_img.jpg';
+import sunNormal from './assets/sun_normal.png';
+
+
 
 
 const scene = new THREE.Scene();
@@ -29,17 +34,17 @@ scene.add(gridHelper)
 const sun = new THREE.Mesh(
   new THREE.SphereGeometry(7,32,32),
   new THREE.MeshStandardMaterial({
-    map: new THREE.TextureLoader().load('assets/sun_img.jpg', function (texture) {
+    map: new THREE.TextureLoader().load(sunImg, function (texture) {
       texture.minFilter = THREE.NearestFilter; 
       texture.magFilter = THREE.NearestFilter; 
       texture.anisotropy = renderer.capabilities.getMaxAnisotropy(); 
     }),
-    normalMap: new THREE.TextureLoader().load('assets/sun_normal.png', function (texture) {
+    normalMap: new THREE.TextureLoader().load(sunNormal, function (texture) {
       texture.minFilter = THREE.NearestFilter;
       texture.magFilter = THREE.NearestFilter;
       texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
     }),
-    emissiveMap: new THREE.TextureLoader().load('assets/sun_img.jpg'), 
+    emissiveMap: new THREE.TextureLoader().load(sunImg), 
     emissive: new THREE.Color(0xffff00), 
     emissiveIntensity: 1,
     side: THREE.DoubleSide, 
@@ -52,8 +57,8 @@ scene.add(sun)
 const planet = new THREE.Mesh(
   new THREE.SphereGeometry(2,32,32),
   new THREE.MeshStandardMaterial({
-    map: new THREE.TextureLoader().load('assets/planet_img.jpg'),
-    normalMap: new THREE.TextureLoader().load('assets/sun_normal.png') //uisng same normal for planet
+    map: new THREE.TextureLoader().load(planetImg),
+    normalMap: new THREE.TextureLoader().load(sunNormal) //uisng same normal for planet
   })
 )
 planet.rotation.x = Math.PI / 8
@@ -81,8 +86,8 @@ function revovle(){
 const planetMoon = new THREE.Mesh(
   new THREE.SphereGeometry(0.6,16,16),
   new THREE.MeshStandardMaterial({
-    map: new THREE.TextureLoader().load('assets/planet_img.jpg'),
-    normalMap: new THREE.TextureLoader().load('assets/planet_normal.png'),
+    map: new THREE.TextureLoader().load(planetImg),
+    normalMap: new THREE.TextureLoader().load(sunNormal),
   })
 )
 
